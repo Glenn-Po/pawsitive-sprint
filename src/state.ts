@@ -14,7 +14,7 @@ export abstract class State {
   }
 
   enter() {}
-  handleUpdate(input: Array<string>) {}
+  handleUpdate(input?: Array<string>) {}
 }
 
 export class Sitting extends State {
@@ -24,13 +24,13 @@ export class Sitting extends State {
     this.player = player;
   }
 
-  enter() {
+  override enter() {
     this.player.frameX = 0;
 
     this.player.maxFrame = 4;
     this.player.frameY = 5;
   }
-  handleUpdate(input: string[]): void {
+  override handleUpdate(input: Array<string>): void {
     //if the player wants to move, then change teh state to running
     if (input.includes('ArrowLeft') || input.includes('ArrowRight')) {
       this.player.setState(PlayerState.RUNNING, 1);

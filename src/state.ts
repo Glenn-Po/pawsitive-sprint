@@ -131,6 +131,8 @@ export class Rolling extends State {
       this.player.setState(PlayerState.RUNNING, 1);
     } else if (!input.includes('Enter') && !this.player.onGround()) {
       this.player.setState(PlayerState.FALLING, 1);
+    } else if (input.includes('Enter') && input.includes('ArrowUp') && this.player.onGround()) {
+      this.player.vy -= 27;
     }
   }
 }

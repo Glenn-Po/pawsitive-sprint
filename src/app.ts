@@ -29,12 +29,17 @@ class Game {
   width: number;
   height: number;
   groundMargin: number;
+
+  score: number = 0;
+
   speed: number = 0; //pixels per frame
   maxSpeed = 4;
   player: Player;
+
   context: CanvasRenderingContext2D;
   background = new BackGround(this);
   input: InputHandler = new InputHandler();
+
   enemies: Array<Enemy>;
   enemyTimer: number = 0;
   enemyInterval: number = 1000;

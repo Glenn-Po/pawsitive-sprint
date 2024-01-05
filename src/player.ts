@@ -33,6 +33,7 @@ class Player {
   }
 
   update(input: Array<string>, deltaTime: number) {
+    this.checkCollision();
     this.currentState.handleUpdate(input);
     //horizontal movement handling
     this.x += this.speed;
@@ -98,6 +99,8 @@ class Player {
         enemy.y < this.y + this.height &&
         enemy.y + enemy.height > this.y
       ) {
+        enemy.markedForDeletion = true;
+        this.game.score++;
       }
     });
   }

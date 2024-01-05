@@ -1,6 +1,7 @@
 import { BackGround } from './background';
 import { ClimbingEnemy, Enemy, FlyingEnemy, GroundEnemy } from './enemy';
 import { InputHandler } from './input';
+import { Particle } from './particles';
 import { Player } from './player';
 import { UI } from './ui';
 window.addEventListener('load', function () {
@@ -45,6 +46,9 @@ class Game {
   enemyTimer: number = 0;
   enemyInterval: number = 1000;
 
+  particles: Array<Particle>;
+  maxParticles = 100;
+
   ui: UI;
 
   constructor(width: number, height: number, context: CanvasRenderingContext2D) {
@@ -54,6 +58,7 @@ class Game {
     this.context = context;
     this.player = new Player(this);
     this.enemies = new Array<Enemy>();
+    this.particles = new Array<Particle>();
     this.ui = new UI(this);
   }
 
@@ -71,11 +76,17 @@ class Game {
     }
 
     this.enemies = this.enemies.filter((enemy) => !enemy.markedForDeletion);
+
+    //handle particles
+    this.particles.forEach((particle) => particle.update());
+    this.particles = this.particles.filter((particle) => !particle.markedForDeletion);
+    if (this.particles.length >= this.maxParticles) this.particles = this.particles.slice(-this.maxParticles);
   }
 
   draw() {
     this.background.draw();
     this.enemies.forEach((enemy) => enemy.draw());
+    this.particles.forEach((particle) => particle.draw());
     this.player.draw();
     this.ui.draw();
   }

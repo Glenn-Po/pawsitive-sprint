@@ -1,5 +1,5 @@
 import { Game } from './app';
-import { Falling, Jumping, PlayerState, Rolling, Running, Sitting, State } from './state';
+import { Diving, Falling, Hit, Jumping, PlayerState, Rolling, Running, Sitting, State } from './state';
 class Player {
   game: Game;
   width: number = 100;
@@ -27,7 +27,15 @@ class Player {
     this.x = 0;
     this.y = this.game.height - this.height - this.game.groundMargin;
     this.frameInterval = 1000 / this.fps;
-    this.states = [new Sitting(this), new Running(this), new Jumping(this), new Falling(this), new Rolling(this)];
+    this.states = [
+      new Sitting(this),
+      new Running(this),
+      new Jumping(this),
+      new Falling(this),
+      new Rolling(this),
+      new Diving(this),
+      new Hit(this),
+    ];
     this.currentState = this.states[0];
     this.currentState.enter();
   }
@@ -41,6 +49,7 @@ class Player {
     else if (input.includes('ArrowLeft')) this.speed = -this.MAX_SPEED;
     else this.speed = 0;
 
+    //horizontal boundaries
     if (this.x < 0) this.x = 0;
     if (this.x > this.game.width - this.width) this.x = this.game.width - this.width;
 
@@ -58,6 +67,9 @@ class Player {
       //   this.DELTA_TIME = 0;
       //   this.y = this.game.height - this.height;
     }
+
+    //vertical boundaries
+    if (this.onGround()) this.y = this.game.height - this.height - this.game.groundMargin;
 
     //sprite animations
     if (this.frameTimer > this.frameInterval) {
@@ -100,7 +112,9 @@ class Player {
         enemy.y + enemy.height > this.y
       ) {
         enemy.markedForDeletion = true;
-        this.game.score++;
+        if (this.currentState.state == PlayerState.ROLLING || this.currentState.state == PlayerState.DIVING)
+          this.game.score++;
+        else this.setState(PlayerState.HIT, 0);
       }
     });
   }

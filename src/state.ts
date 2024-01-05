@@ -1,3 +1,4 @@
+import { Dust, Fire, Splash } from './particles';
 import { Player } from './player';
 
 export enum PlayerState {
@@ -17,7 +18,7 @@ export abstract class State {
   }
 
   enter() {}
-  handleUpdate(input?: Array<string>) {}
+  handleUpdate(input: Array<string>) {}
 }
 
 export class Sitting extends State {
@@ -58,6 +59,9 @@ export class Running extends State {
   }
   handleUpdate(input: string[]): void {
     //i
+    this.player.game.particles.push(
+      new Dust(this.player.game, this.player.x + this.player.width * 0.5, this.player.y + this.player.height)
+    );
     if (input.includes('ArrowDown')) {
       this.player.setState(PlayerState.SITTING, 0);
     } else if (input.includes('ArrowUp')) {
@@ -88,6 +92,8 @@ export class Jumping extends State {
       this.player.setState(PlayerState.FALLING, 1);
     } else if (input.includes('Enter')) {
       this.player.setState(PlayerState.ROLLING, 2);
+    } else if (input.includes('ArrowDown')) {
+      this.player.setState(PlayerState.DIVING, 0);
     }
   }
 }
@@ -109,6 +115,8 @@ export class Falling extends State {
     //if the player wants to move, then change teh state to running
     if (this.player.onGround()) {
       this.player.setState(PlayerState.RUNNING, 1);
+    } else if (input.includes('ArrowDown')) {
+      this.player.setState(PlayerState.DIVING, 0);
     }
   }
 }
@@ -126,13 +134,17 @@ export class Rolling extends State {
     this.player.frameY = 6;
   }
   handleUpdate(input: string[]): void {
-    //if the player wants to move, then change teh state to running
+    this.player.game.particles.push(
+      new Fire(this.player.game, this.player.x + this.player.width * 0.5, this.player.y + this.player.height * 0.5)
+    );
     if (!input.includes('Enter') && this.player.onGround()) {
       this.player.setState(PlayerState.RUNNING, 1);
     } else if (!input.includes('Enter') && !this.player.onGround()) {
       this.player.setState(PlayerState.FALLING, 1);
     } else if (input.includes('Enter') && input.includes('ArrowUp') && this.player.onGround()) {
       this.player.vy -= 27;
+    } else if (input.includes('ArrowDown')) {
+      this.player.setState(PlayerState.DIVING, 0);
     }
   }
 }
@@ -147,13 +159,21 @@ export class Diving extends State {
   enter() {
     this.player.frameX = 0;
     this.player.maxFrame = 6;
-    this.player.frameY = 2;
-    if (this.player.onGround()) this.player.y -= 30; //this.player.game.height - this.player.height; // go up
+    this.player.frameY = 6;
+    this.player.vy = 15;
   }
   handleUpdate(input: string[]): void {
-    //if the player wants to move, then change teh state to running
+    this.player.game.particles.push(
+      new Fire(this.player.game, this.player.x + this.player.width * 0.5, this.player.y + this.player.height * 0.5)
+    );
     if (this.player.onGround()) {
       this.player.setState(PlayerState.RUNNING, 1);
+      for (let i = 0; i < 50; i++)
+        this.player.game.particles.push(
+          new Splash(this.player.game, this.player.x + this.player.width * 0.5, this.player.y + this.player.height)
+        );
+    } else if (input.includes('Enter') && !this.player.onGround()) {
+      this.player.setState(PlayerState.ROLLING, 1);
     }
   }
 }
@@ -167,14 +187,14 @@ export class Hit extends State {
 
   enter() {
     this.player.frameX = 0;
-    this.player.maxFrame = 6;
-    this.player.frameY = 2;
-    if (this.player.onGround()) this.player.y -= 30; //this.player.game.height - this.player.height; // go up
+    this.player.maxFrame = 10;
+    this.player.frameY = 4;
   }
   handleUpdate(input: string[]): void {
-    //if the player wants to move, then change teh state to running
-    if (this.player.onGround()) {
+    if (this.player.frameX >= 10 && this.player.onGround()) {
       this.player.setState(PlayerState.RUNNING, 1);
+    } else if (this.player.frameX >= 10 && !this.player.onGround()) {
+      this.player.setState(PlayerState.FALLING, 1);
     }
   }
 }

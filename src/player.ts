@@ -1,5 +1,5 @@
 import { Game } from './app';
-import { Falling, Jumping, PlayerState, Running, Sitting, State } from './state';
+import { Falling, Jumping, PlayerState, Rolling, Running, Sitting, State } from './state';
 class Player {
   game: Game;
   width: number = 100;
@@ -27,7 +27,7 @@ class Player {
     this.x = 0;
     this.y = this.game.height - this.height - this.game.groundMargin;
     this.frameInterval = 1000 / this.fps;
-    this.states = [new Sitting(this), new Running(this), new Jumping(this), new Falling(this)];
+    this.states = [new Sitting(this), new Running(this), new Jumping(this), new Falling(this), new Rolling(this)];
     this.currentState = this.states[0];
     this.currentState.enter();
   }

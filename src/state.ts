@@ -5,6 +5,9 @@ export enum PlayerState {
   RUNNING,
   JUMPING,
   FALLING,
+  ROLLING,
+  DIVING,
+  HIT,
 }
 
 export abstract class State {
@@ -34,6 +37,8 @@ export class Sitting extends State {
     //if the player wants to move, then change teh state to running
     if (input.includes('ArrowLeft') || input.includes('ArrowRight')) {
       this.player.setState(PlayerState.RUNNING, 1);
+    } else if (input.includes('Enter')) {
+      this.player.setState(PlayerState.ROLLING, 2);
     }
   }
 }
@@ -57,6 +62,8 @@ export class Running extends State {
       this.player.setState(PlayerState.SITTING, 0);
     } else if (input.includes('ArrowUp')) {
       this.player.setState(PlayerState.JUMPING, 1);
+    } else if (input.includes('Enter')) {
+      this.player.setState(PlayerState.ROLLING, 2);
     }
   }
 }
@@ -79,6 +86,8 @@ export class Jumping extends State {
     //if the player wants to move, then change teh state to running
     if (this.player.vy > this.player.weight) {
       this.player.setState(PlayerState.FALLING, 1);
+    } else if (input.includes('Enter')) {
+      this.player.setState(PlayerState.ROLLING, 2);
     }
   }
 }
@@ -87,6 +96,70 @@ export class Falling extends State {
   player: Player;
   constructor(player: Player) {
     super(PlayerState.FALLING);
+    this.player = player;
+  }
+
+  enter() {
+    this.player.frameX = 0;
+    this.player.maxFrame = 6;
+    this.player.frameY = 2;
+    if (this.player.onGround()) this.player.y -= 30; //this.player.game.height - this.player.height; // go up
+  }
+  handleUpdate(input: string[]): void {
+    //if the player wants to move, then change teh state to running
+    if (this.player.onGround()) {
+      this.player.setState(PlayerState.RUNNING, 1);
+    }
+  }
+}
+
+export class Rolling extends State {
+  player: Player;
+  constructor(player: Player) {
+    super(PlayerState.ROLLING);
+    this.player = player;
+  }
+
+  enter() {
+    this.player.frameX = 0;
+    this.player.maxFrame = 6;
+    this.player.frameY = 6;
+  }
+  handleUpdate(input: string[]): void {
+    //if the player wants to move, then change teh state to running
+    if (!input.includes('Enter') && this.player.onGround()) {
+      this.player.setState(PlayerState.RUNNING, 1);
+    } else if (!input.includes('Enter') && !this.player.onGround()) {
+      this.player.setState(PlayerState.FALLING, 1);
+    }
+  }
+}
+
+export class Diving extends State {
+  player: Player;
+  constructor(player: Player) {
+    super(PlayerState.DIVING);
+    this.player = player;
+  }
+
+  enter() {
+    this.player.frameX = 0;
+    this.player.maxFrame = 6;
+    this.player.frameY = 2;
+    if (this.player.onGround()) this.player.y -= 30; //this.player.game.height - this.player.height; // go up
+  }
+  handleUpdate(input: string[]): void {
+    //if the player wants to move, then change teh state to running
+    if (this.player.onGround()) {
+      this.player.setState(PlayerState.RUNNING, 1);
+    }
+  }
+}
+
+export class Hit extends State {
+  player: Player;
+  constructor(player: Player) {
+    super(PlayerState.HIT);
     this.player = player;
   }
 

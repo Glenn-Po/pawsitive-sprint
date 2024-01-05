@@ -2,6 +2,7 @@ import { BackGround } from './background';
 import { ClimbingEnemy, Enemy, FlyingEnemy, GroundEnemy } from './enemy';
 import { InputHandler } from './input';
 import { Player } from './player';
+import { UI } from './ui';
 window.addEventListener('load', function () {
   const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
   canvas.width = 500;
@@ -44,6 +45,8 @@ class Game {
   enemyTimer: number = 0;
   enemyInterval: number = 1000;
 
+  ui: UI;
+
   constructor(width: number, height: number, context: CanvasRenderingContext2D) {
     this.width = width;
     this.height = height;
@@ -51,6 +54,7 @@ class Game {
     this.context = context;
     this.player = new Player(this);
     this.enemies = new Array<Enemy>();
+    this.ui = new UI(this);
   }
 
   update(deltaTime: number) {
@@ -73,6 +77,7 @@ class Game {
     this.background.draw();
     this.enemies.forEach((enemy) => enemy.draw());
     this.player.draw();
+    this.ui.draw();
   }
 
   addEnemy() {

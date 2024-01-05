@@ -1,3 +1,4 @@
+import { CollisionAnimation } from './animation';
 import { Game } from './app';
 import { Diving, Falling, Hit, Jumping, PlayerState, Rolling, Running, Sitting, State } from './state';
 class Player {
@@ -45,8 +46,8 @@ class Player {
     this.currentState.handleUpdate(input);
     //horizontal movement handling
     this.x += this.speed;
-    if (input.includes('ArrowRight')) this.speed = this.MAX_SPEED;
-    else if (input.includes('ArrowLeft')) this.speed = -this.MAX_SPEED;
+    if (input.includes('ArrowRight') && !(this.currentState.state != PlayerState.HIT)) this.speed = this.MAX_SPEED;
+    else if (input.includes('ArrowLeft') && !(this.currentState.state != PlayerState.HIT)) this.speed = -this.MAX_SPEED;
     else this.speed = 0;
 
     //horizontal boundaries
@@ -112,6 +113,9 @@ class Player {
         enemy.y + enemy.height > this.y
       ) {
         enemy.markedForDeletion = true;
+        this.game.collisions.push(
+          new CollisionAnimation(this.game, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5)
+        );
         if (this.currentState.state == PlayerState.ROLLING || this.currentState.state == PlayerState.DIVING)
           this.game.score++;
         else this.setState(PlayerState.HIT, 0);

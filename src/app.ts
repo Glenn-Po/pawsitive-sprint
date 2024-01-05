@@ -1,3 +1,4 @@
+import { CollisionAnimation } from './animation';
 import { BackGround } from './background';
 import { ClimbingEnemy, Enemy, FlyingEnemy, GroundEnemy } from './enemy';
 import { InputHandler } from './input';
@@ -21,7 +22,7 @@ window.addEventListener('load', function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     game.update(deltaTime);
     game.draw();
-    requestAnimationFrame(animate);
+    if (!game.gameOver) requestAnimationFrame(animate);
   }
 
   animate(0);
@@ -33,6 +34,9 @@ class Game {
   groundMargin: number;
 
   score: number = 0;
+  timer: number = 0;
+  maxTime: number = 10_000;
+  gameOver = false;
 
   speed: number = 0; //pixels per frame
   maxSpeed = 4;
@@ -49,6 +53,7 @@ class Game {
   particles: Array<Particle>;
   maxParticles = 100;
 
+  collisions: Array<CollisionAnimation>;
   ui: UI;
 
   constructor(width: number, height: number, context: CanvasRenderingContext2D) {
@@ -59,10 +64,13 @@ class Game {
     this.player = new Player(this);
     this.enemies = new Array<Enemy>();
     this.particles = new Array<Particle>();
+    this.collisions = new Array<CollisionAnimation>();
     this.ui = new UI(this);
   }
 
   update(deltaTime: number) {
+    this.timer += deltaTime;
+    if (this.timer > this.maxTime) this.gameOver = true;
     this.background.update();
     this.enemies.forEach((enemy) => enemy.update(deltaTime));
     this.player.update(this.input.keys, deltaTime);
@@ -81,12 +89,17 @@ class Game {
     this.particles.forEach((particle) => particle.update());
     this.particles = this.particles.filter((particle) => !particle.markedForDeletion);
     if (this.particles.length >= this.maxParticles) this.particles = this.particles.slice(-this.maxParticles);
+
+    //handle collision sprites
+    this.collisions.forEach((collision) => collision.update(deltaTime));
+    this.collisions = this.collisions.filter((collision) => !collision.markedForDeletion);
   }
 
   draw() {
     this.background.draw();
     this.enemies.forEach((enemy) => enemy.draw());
     this.particles.forEach((particle) => particle.draw());
+    this.collisions.forEach((collision) => collision.draw());
     this.player.draw();
     this.ui.draw();
   }

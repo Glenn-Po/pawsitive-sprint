@@ -54,7 +54,7 @@ export class Running extends State {
   enter() {
     this.player.frameX = 0;
 
-    this.player.maxFrame = 6;
+    this.player.maxFrame = 8;
     this.player.frameY = 3;
   }
   handleUpdate(input: string[]): void {
@@ -143,7 +143,7 @@ export class Rolling extends State {
       this.player.setState(PlayerState.FALLING, 1);
     } else if (input.includes('Enter') && input.includes('ArrowUp') && this.player.onGround()) {
       this.player.vy -= 27;
-    } else if (input.includes('ArrowDown')) {
+    } else if (input.includes('ArrowDown') && !this.player.onGround()) {
       this.player.setState(PlayerState.DIVING, 0);
     }
   }
